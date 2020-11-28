@@ -1,0 +1,27 @@
+{% load static %}
+<html>
+  <head>
+    <title>SOCLET TEST</title>
+  </head>
+  <body>
+    <h1>SOCKET TEST</h1>
+    <script>
+    var socket = new WebSocket('ws://' + window.location.host + '/ws/faitsData');
+
+    socket.onopen = function open() {
+      console.log('WebSockets connection created.');
+      socket.send("100");
+    };
+
+    socket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      console.log(data);
+    };
+
+    socket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
+    };
+  </script>
+  <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+  </body>
+</html>

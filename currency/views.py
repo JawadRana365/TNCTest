@@ -49,3 +49,6 @@ def fates(response):
 		return render(response, "fates.html",{'currencies':curencies})
 	else:
 		return redirect("/login")
+
+def socket(response):
+	return render(response, "socket.html")

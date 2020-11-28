@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from accounts import views as accountsView
 from currency import views as currencyView
 from django.conf.urls import url
@@ -29,4 +29,5 @@ urlpatterns = [
     path("updatefait/", currencyView.updateFait, name="updatefait"),  # <-- added
     path("fates/", currencyView.fates, name="fates"),  # <-- added
     url("calfate/",apiView.CurrencyFatesAPIView.as_view(), name="calfate"), #new
+    url("socket/",currencyView.socket, name="socket"), #new
 ]

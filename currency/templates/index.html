@@ -1,0 +1,158 @@
+{% load crispy_forms_tags %}
+{% load table_tags %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!--style-->
+  <style>
+  .card {
+
+   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5),
+               0 6px 20px 0 rgba(0,0,0,0.39);
+   background: lightblue;
+   margin-bottom : 5%;
+   border-radius: 25px;
+   padding : 2%;
+   overflow: auto;
+   resize: both;
+   text-overflow: ellipsis;
+  }
+  .card:hover{
+    background: lightblue;
+  }
+
+  .submit_form{
+
+    text-align: center;
+    padding: 3%;
+    background: lightblue;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.4),
+                0 6px 20px 0 rgba(0,0,0,0.36);
+  }
+
+  .field-margin{
+      margin: 5px;
+  }
+  </style>
+
+</head>
+
+<body  class="container-fluid">
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-info">
+    <strong>{{message}}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <center class="row">
+    <h1><i>Home Page</i></h1>
+    <hr />
+  </center>
+
+  <div class="row">
+    <div class="col-md-12">
+      <a class="btn btn-primary" href="{% url 'fates' %}">Current Fates</a>
+    </div>
+
+    <div class="col-md-8">
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>CONVERSION FAITS</i></h1>
+            <hr />  
+          </center>
+          {% render_table currencyFaitsData %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>Create Currency</i></h1>
+            <hr />
+          </center>
+          <form  method="POST">
+            {% csrf_token %}
+            {{ currentForm|crispy }}
+            <input class="btn btn-primary field-margin" type="submit" class="btn btn-default" value="Create" />
+          </form>
+        </div>
+      </div>
+
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>Create CurrencyFaits</i></h1>
+            <hr />
+          </center>
+          <form  method="POST">
+            {% csrf_token %}
+            {{ currencyFaitsForm|crispy }}
+            <input class="btn btn-primary field-margin" type="submit" class="btn btn-default" value="Create" />
+          </form>
+        </div>
+      </div>
+
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>Edit CurrencyFaits</i></h1>
+            <hr />
+          </center>
+          <form  method="POST">
+            <strong>Name :</strong><br><label id="name"></label><br>
+            <strong>Conversion Factor :</strong><br><input type="text" id="conversionFactor"><input type="hidden" id="id"><br>
+            <strong>From Currency :</strong><br><label id="fromcurrency"></label><br>
+            <strong>To Currency :</strong><br><label id="tocurrency"></label><br>
+            <input type="button" onclick="faitUpdate()" class="btn btn-primary field-margin" value="Update" />
+          </form>
+        </div>
+      </div>
+    </div>
+       
+  </div>
+</body>
+<script type="text/javascript">
+$(document).ready(function($) {
+    $("tr").click(function() {  
+      document.getElementById("id").value = this.cells[0].innerHTML;
+      document.getElementById("name").innerHTML = this.cells[1].innerHTML;
+      document.getElementById("conversionFactor").value = this.cells[2].innerHTML;
+      document.getElementById("fromcurrency").innerHTML = this.cells[3].innerHTML;
+      document.getElementById("tocurrency").innerHTML = this.cells[4].innerHTML;
+    });
+});
+function faitUpdate(){
+  if($("#id").val()){
+    var token = '{{csrf_token}}';
+    $.ajax({
+      type:"POST",
+      headers: { "X-CSRFToken": token },
+      url: "{% url 'updatefait' %}",
+      data: {
+        'conversionFactor': $("#conversionFactor").val(),
+        'id' : $("#id").val()
+      },
+      dataType: 'json',
+      success: function (data) {
+        location.reload(); 
+      }
+    });
+  }else{
+    alert("Please select any conversion Factor by clicking on row");
+  }
+}
+</script>
+</html>

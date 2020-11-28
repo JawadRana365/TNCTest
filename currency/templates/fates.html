@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Fates</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!--style-->
+  <style>
+  .card {
+
+   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5),
+               0 6px 20px 0 rgba(0,0,0,0.39);
+   background: lightblue;
+   margin-bottom : 5%;
+   border-radius: 25px;
+   padding : 2%;
+   overflow: auto;
+   resize: both;
+   text-overflow: ellipsis;
+  }
+  .card:hover{
+    background: lightblue;
+  }
+
+  .submit_form{
+
+    text-align: center;
+    padding: 3%;
+    background: lightblue;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.4),
+                0 6px 20px 0 rgba(0,0,0,0.36);
+  }
+
+  .field-margin{
+      margin: 5px;
+  }
+  #rates {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  #rates td, #rates th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  #rates tr:nth-child(even){background-color: #f2f2f2;}
+
+  #rates tr:hover {background-color: #ddd;}
+
+  #rates th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+  }
+  </style>
+
+</head>
+
+<body  class="container-fluid">
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-info">
+    <strong>{{message}}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <center class="row">
+    <h1><i>Fates Rates</i></h1>
+    <hr />
+  </center>
+
+  <div class="row" ng-app="rates" ng-controller="ratesCtrl">
+    <div class="col-md-12">
+      <a class="btn btn-primary" href="{% url 'home' %}">Home</a>
+    </div>
+
+    <div class="col-md-4 col-md-offset-4">
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>CONVERSION FAITS</i></h1>
+            <hr />  
+          </center>
+          <form  method="POST">
+            <input type="text" class="form-control field-margin" ng-model="amount" required="true">
+            <select class="form-control field-margin" required="true" ng-model="currency">
+              <option value="" selected="true" hidden="true">Select Currency</option>
+              {% for item in currencies %}
+                <option value="{{ item.id }}">{{ item.name }}</option>
+              {% endfor %} 
+            </select>
+            <button class="btn btn-primary" ng-click="search()">Search</button>
+          </form>
+        </div>
+      </div>
+    </div> 
+    <div class="col-md-8 col-md-offset-2">
+      <div class="row" style="margin: 10px;">
+        <div  class="submit_form">
+          <center class="row">
+            <h1><i>CONVERSION FAITS</i></h1>
+            <hr />  
+          </center>
+          <div>
+            <table id="rates">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Amount</th>
+                  <th>Current Currency</th>
+                  <th>To Currency</th>
+                  <th>Rate</th>
+                </tr>
+              </thead>
+              <tbody id="data">
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>    
+  </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script type="text/javascript">
+var app = angular.module('rates', []);
+app.controller('ratesCtrl', function($scope, $http) {
+  $scope.search = function() {
+    var token = '{{csrf_token}}';
+    if (angular.isDefined($scope.amount) && angular.isDefined($scope.currency)) {
+      var fd = new FormData();
+       fd.append('amount', $scope.amount);
+       fd.append('currency', $scope.currency);
+      $http.post("{% url 'calfate' %}", fd, {
+             transformRequest: angular.identity,
+             headers: {'Content-Type': undefined,'Process-Data': false, "X-CSRFToken": token}
+      }).then(function mySuccess(response) {
+        console.log(JSON.stringify(response));
+        var body = "";
+        $.each(response.data.rates,function( key, value ) {
+          body += "<tr><td>"+value.id+"</td><td>"+value.amount+"</td><td>"+value.currentcurrency+"</td><td>"+value.fromcurrency+"</td><td>"+value.rate+"</td></tr>"
+        });
+        $("#data").html(body);
+      }, function myError(response) {
+        console.log(JSON.stringify(response));
+      });
+    }
+  }
+});
+</script>
+</html>

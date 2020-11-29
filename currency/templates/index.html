@@ -125,6 +125,23 @@
   </div>
 </body>
 <script type="text/javascript">
+var socket = new WebSocket('ws://' + window.location.host + '/ws/faitsData');
+socket.onopen = function open() {
+    console.log('WebSockets connection created.');   
+    //socket.send("100");   
+};
+
+socket.onmessage = function(e) {
+  const data = JSON.parse(e.data);
+  console.log(data);
+  // Do your logic while receive now value
+  location.reload(); 
+};
+
+socket.onclose = function(e) {
+  console.error('Chat socket closed unexpectedly');
+};
+
 $(document).ready(function($) {
     $("tr").click(function() {  
       document.getElementById("id").value = this.cells[0].innerHTML;
@@ -147,9 +164,10 @@ function faitUpdate(){
       },
       dataType: 'json',
       success: function (data) {
-        location.reload(); 
+        location.reload();
       }
     });
+    socket.send($("#conversionFactor").val());
   }else{
     alert("Please select any conversion Factor by clicking on row");
   }
